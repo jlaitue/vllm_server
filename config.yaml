@@ -1,0 +1,29 @@
+input_path: "/path/to/your/findings_file.csv"
+output_path: "outputs/normalized_findings.jsonl"
+failed_path: "outputs/failed_reports.jsonl"
+
+# Supported: csv, jsonl, parquet
+input_format: "csv"
+
+# Change these based on your file.
+# Set unavailable columns to null.
+id_columns:
+  subject_id: "subject_id"
+  study_id: "study_id"
+  report_id: null
+
+findings_column: "findings"
+
+vllm:
+  base_url: "http://localhost:8000/v1"
+  api_key: "EMPTY"
+  model: "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B"
+  # model: "deepseek-ai/DeepSeek-V3"
+  temperature: 0.0
+  top_p: 1.0
+  max_tokens: 2048
+  timeout_seconds: 120
+
+processing:
+  limit: 5
+  resume: true
