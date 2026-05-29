@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
 from typing import Any
-
+from omegaconf import OmegaConf
 import yaml
 from tqdm import tqdm
 
@@ -15,15 +15,20 @@ from io_utils import (
 from llm_client import LocalVLLMClient
 from validate import validate_output
 
+import time
+from rich.console import Console
+from rich.panel import Panel
+
+def print_config(config):
+    console = Console()
+    yaml_str = OmegaConf.to_yaml(config)
+    console.print(Panel.fit(yaml_str, title="🔧 Loaded Configuration", border_style="cyan"))
 
 def load_text(path: str) -> str:
     with open(path, "r", encoding="utf-8") as f:
         return f.read()
 
-
-def main(config_path: str) -> None:
-    with open(config_path, "r", encoding="utf-8") as f:
-        config = yaml.safe_load(f)
+def main(config) -> None:
 
     system_prompt = load_text("prompts/split_findings_system.txt")
 
@@ -84,7 +89,7 @@ def main(config_path: str) -> None:
                 "row_index": report["row_index"],
                 "subject_id": report.get("subject_id"),
                 "study_id": report.get("study_id"),
-                "report_id": report.get("report_id"),
+                "dicom_id": report.get("dicom_id"),
                 "original_findings": report["findings"],
                 "findings": [item.model_dump() for item in parsed.findings],
                 "model": config["vllm"]["model"],
@@ -97,7 +102,7 @@ def main(config_path: str) -> None:
                 "row_index": report["row_index"],
                 "subject_id": report.get("subject_id"),
                 "study_id": report.get("study_id"),
-                "report_id": report.get("report_id"),
+                "dicom_id": report.get("dicom_id"),
                 "original_findings": report["findings"],
                 "error": repr(exc),
             }
@@ -109,8 +114,22 @@ def main(config_path: str) -> None:
 
 
 if __name__ == "__main__":
+    # Command-line parser for config path
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", required=True)
+    parser.add_argument('--config', type=str, default="config.yaml", help="Path to config YAML")
+    parser.add_argument('--override', nargs='*', help="Override config values from terminal using dot notation")
     args = parser.parse_args()
 
-    main(args.config)
+    config = OmegaConf.load(args.config)
+    OmegaConf.set_struct(config, False)  # Unlock config to be able to add new args
+
+    # If there are overrides from the terminal, apply them
+    if args.override:
+        # Ex. --override model.name=evax dataset.batch_size=64 hypers.epochs=20
+        cli_overrides = OmegaConf.from_dotlist(args.override)
+        config = OmegaConf.merge(config, cli_overrides)
+    
+    print_config(config)
+    time.sleep(1) # Just so you can quickly verify your config.
+
+    main(config)

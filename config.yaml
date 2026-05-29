@@ -1,4 +1,4 @@
-input_path: "/path/to/your/findings_file.csv"
+input_path: "/scratch/ljl5178/Datasets/MIMIC_CXR/cailab_mimic-cxr_report_annotations_val.csv"
 output_path: "outputs/normalized_findings.jsonl"
 failed_path: "outputs/failed_reports.jsonl"
 
@@ -10,7 +10,7 @@ input_format: "csv"
 id_columns:
   subject_id: "subject_id"
   study_id: "study_id"
-  report_id: null
+  dicom_id: "dicom_id"
 
 findings_column: "findings"
 
