@@ -1,7 +1,6 @@
-input_path: "/scratch/ljl5178/Datasets/MIMIC_CXR/cailab_mimic-cxr_report_annotations_val.csv"
-output_path: "outputs/normalized_findings.jsonl"
-failed_path: "outputs/failed_reports.jsonl"
-
+data_folder: "/scratch/ljl5178/Datasets/MIMIC_CXR"
+prompt_file: "expanded.txt"
+data_split: "val"
 # Supported: csv, jsonl, parquet
 input_format: "csv"
 
@@ -25,5 +24,10 @@ vllm:
   timeout_seconds: 120
 
 processing:
-  limit: 5
   resume: true
+  limit: null
+  repair_spans: true
+  num_workers: 32
+  max_in_flight: 128
+
+startup_sleep_seconds: 0
