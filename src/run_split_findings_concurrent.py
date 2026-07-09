@@ -108,6 +108,11 @@ def main(config) -> None:
     output_path = output_dir / "normalized_findings.jsonl"
     failed_path = output_dir / "failed_reports.jsonl"
 
+    overwrite = bool(config["processing"].get("overwrite", False))
+    if overwrite:
+        output_path.unlink(missing_ok=True)
+        failed_path.unlink(missing_ok=True)
+
     done_keys = set()
     if config["processing"].get("resume", True):
         done_keys = load_done_keys(output_path)

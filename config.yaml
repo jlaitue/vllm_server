@@ -29,5 +29,6 @@ processing:
   repair_spans: true
   num_workers: 32
   max_in_flight: 128
+  overwrite: false
 
 startup_sleep_seconds: 0
