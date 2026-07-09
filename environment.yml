@@ -1,0 +1,7 @@
+name: vllm_server
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+prefix: /scratch/ljl5178/.conda/envs/vllm_server
