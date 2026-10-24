@@ -66,3 +66,39 @@ class LocalVLLMClient:
             raise ValueError("Model returned empty content.")
 
         return json.loads(content)
+
+    @retry(
+        wait=wait_exponential(multiplier=1, min=2, max=30),
+        stop=stop_after_attempt(3),
+        reraise=True,
+    )
+    def complete_json(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        schema: dict[str, Any],
+        schema_name: str,
+        temperature: float | None = None,
+    ) -> dict[str, Any]:
+        """Like split_findings, but with a caller-supplied (per-request) schema."""
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+            temperature=self.temperature if temperature is None else temperature,
+            top_p=self.top_p,
+            max_tokens=self.max_tokens,
+            response_format={
+                "type": "json_schema",
+                "json_schema": {"name": schema_name, "schema": schema},
+            },
+        )
+
+        content = response.choices[0].message.content
+
+        if content is None:
+            raise ValueError("Model returned empty content.")
+
+        return json.loads(content)

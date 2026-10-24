@@ -88,7 +88,7 @@ def main(config) -> None:
 
     input_path = (
         Path(config["data_folder"])
-        / f"cailab_mimic-cxr_report_annotations_{data_split}.csv"
+        / f"cailab_mimic-cxr_report_annotations_{data_split}.csv" # Original MIMIC CXR report findings
     )
 
     system_prompt = load_text(Path("prompts") / config["prompt_file"])
@@ -102,7 +102,8 @@ def main(config) -> None:
     if limit is not None:
         df = df.head(int(limit))
 
-    output_dir = Path("outputs") / data_split
+    # output_dir = Path("outputs") / data_split
+    output_dir = Path("outputs") / "imagenome_v1" / data_split
     output_dir.mkdir(parents=True, exist_ok=True)
 
     output_path = output_dir / "normalized_findings.jsonl"

@@ -57,7 +57,8 @@ def main(config) -> None:
         timeout_seconds=config["vllm"].get("timeout_seconds", 120),
     )
 
-    output_dir = Path("outputs") / data_split
+    # output_dir = Path("outputs") / data_split
+    output_dir = Path("outputs") / "imagenome_v1" / data_split
     output_dir.mkdir(parents=True, exist_ok=True)
 
     output_path = output_dir / "normalized_findings.jsonl"

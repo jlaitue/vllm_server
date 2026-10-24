@@ -84,14 +84,16 @@ def split_clauses_with_offsets(text: str) -> list[tuple[str, int, int]]:
     return chunks
 
 
-def exact_or_normalized_span_found(source_span: str, original_findings: str) -> bool:
-    if source_span in original_findings:
-        return True
+# def exact_or_normalized_span_found(source_span: str, original_findings: str) -> bool:
+#     if source_span in original_findings:
+#         return True
 
-    span_norm = normalize_for_span_check(source_span)
-    original_norm = normalize_for_span_check(original_findings)
-    return span_norm in original_norm
+#     span_norm = normalize_for_span_check(source_span)
+#     original_norm = normalize_for_span_check(original_findings)
+#     return span_norm in original_norm
 
+def exact_or_normalized_span_found(source_span: str, original_findings: str,) -> bool:
+    return bool(source_span.strip()) and source_span in original_findings
 
 def get_topic_keywords(topic: str) -> list[str]:
     return TOPIC_KEYWORDS.get(topic, [])
@@ -106,7 +108,12 @@ def contains_negation_cue(text: str) -> bool:
     text_norm = normalize_for_span_check(text)
     return any(re.search(rf"\b{re.escape(cue)}\b", text_norm) for cue in NEGATION_CUES)
 
-
+def exact_or_normalized_span_found(
+    source_span: str,
+    original_findings: str,
+) -> bool:
+    return bool(source_span.strip()) and source_span in original_findings
+    
 def repair_source_span(
     source_span: str,
     original_findings: str,
@@ -199,6 +206,17 @@ def repair_source_span(
     return None
 
 
+ALLOWED_BOXES_BY_REGION = {
+    "lungs": {"right_lung", "left_lung"},
+    "pleura": {"right_lung", "left_lung"},
+    "heart_cardiomediastinum": {"cardiac_silhouette"},
+    "mediastinum_hila": {"mediastinum"},
+    "bones_chest_wall": set(),
+    "diaphragm_subdiaphragm": set(),
+    "support_devices": set(),
+    "global_or_multiregion": set(),
+}
+
 def validate_output(
     raw_obj: dict,
     original_findings: str,
@@ -207,6 +225,14 @@ def validate_output(
     parsed = SplitFindingsOutput.model_validate(raw_obj)
 
     for item in parsed.findings:
+        invalid_boxes = (set(item.bbox_names) - ALLOWED_BOXES_BY_REGION[item.region])
+
+        if invalid_boxes:
+            raise ValueError(
+                f"Invalid bbox_names for region={item.region}: "
+                f"{sorted(invalid_boxes)}"
+            )
+        
         if not exact_or_normalized_span_found(item.source_span, original_findings):
             repaired_span = None
 

@@ -1,7 +1,6 @@
 from typing import Literal
 
-from pydantic import BaseModel, Field
-
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 Region = Literal[
     "lungs",
@@ -42,16 +41,35 @@ Topic = Literal[
 
 Polarity = Literal["present", "absent", "uncertain"]
 
+BBoxName = Literal[
+    "right_lung",
+    "left_lung",
+    "mediastinum",
+    "cardiac_silhouette",
+]
+
 
 class FindingItem(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     sentence: str = Field(min_length=3)
     region: Region
+    bbox_names: list[BBoxName] = Field(max_length=4)
     topic: Topic
     polarity: Polarity
     source_span: str = Field(min_length=1)
 
+    @field_validator("bbox_names")
+    @classmethod
+    def validate_unique_boxes(cls, names: list[BBoxName]) -> list[BBoxName]:
+        if len(names) != len(set(names)):
+            raise ValueError("bbox_names must contain unique names")
+        return names
+
 
 class SplitFindingsOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     findings: list[FindingItem]
 
 
