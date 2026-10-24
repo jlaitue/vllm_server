@@ -1,0 +1,3 @@
+python src/run_split_findings_concurrent.py --config config.yaml --override processing.resume=true data_split=train processing.num_workers=192 processing.max_in_flight=384
+python src/run_split_findings_concurrent.py --config config.yaml --override processing.resume=true data_split=val processing.num_workers=192 processing.max_in_flight=384
+python src/run_split_findings_concurrent.py --config config.yaml --override processing.resume=true data_split=test processing.num_workers=192 processing.max_in_flight=384

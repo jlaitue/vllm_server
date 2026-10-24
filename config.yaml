@@ -1,5 +1,5 @@
-data_folder: "/scratch/ljl5178/Datasets/MIMIC_CXR"
-prompt_file: "expanded.txt"
+data_folder: "/scratch/ljl5178/Datasets/RADIOLOGY_REPORT/MIMIC_CXR"
+prompt_file: "main_prompt_imagenome_v1.txt"
 data_split: "val"
 # Supported: csv, jsonl, parquet
 input_format: "csv"
@@ -26,7 +26,7 @@ vllm:
 processing:
   resume: true
   limit: null
-  repair_spans: true
+  repair_spans: false
   num_workers: 32
   max_in_flight: 128
   overwrite: false

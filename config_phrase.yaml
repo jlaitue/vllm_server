@@ -1,0 +1,22 @@
+# ImaGenome v2: phrase-level cleaning (src/run_phrase_split.py)
+units_file: "outputs/imagenome_v2/pilot_units.jsonl"   # full run: outputs/imagenome_v2/units.jsonl
+out_dir: "outputs/imagenome_v2/runs"
+run_name: "pilot_qwen3-30b-a3b"
+prompt_file: "phrase_split_v2.txt"
+
+vllm:
+  base_url: "http://localhost:8000/v1"
+  api_key: "EMPTY"
+  model: "Qwen/Qwen3-30B-A3B-Instruct-2507"
+  temperature: 0.0
+  top_p: 1.0
+  max_tokens: 1024
+  timeout_seconds: 120
+
+processing:
+  resume: true
+  overwrite: false
+  limit: null
+  retry_temperature: 0.7
+  num_workers: 128
+  max_in_flight: 256
